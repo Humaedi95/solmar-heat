@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solmar Heat — an open-world crime game</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #101216; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; }
+  #wrap { position: relative; width: 1280px; height: 720px; margin: 0 auto; }
+  #game { display: block; width: 1280px; height: 720px; background: #20242a; }
+  .hud { position: absolute; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.9); pointer-events: none; z-index: 5; }
+  #topleft { top: 14px; left: 16px; }
+  #healthbar { width: 220px; height: 14px; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.5); border-radius: 3px; overflow: hidden; }
+  #health-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  #health-text { font-size: 12px; margin-top: 3px; font-weight: 600; }
+  #money { font-size: 26px; font-weight: 800; color: #7dff8a; margin-top: 6px; letter-spacing: 1px; }
+  #topright { top: 14px; right: 16px; text-align: right; }
+  #minimap-wrap { border: 2px solid rgba(255,255,255,0.65); border-radius: 4px; overflow: hidden; background: #14181d; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+  #minimap { display: block; width: 220px; height: 160px; }
+  #clock { font-size: 20px; font-weight: 700; margin-top: 6px; }
+  #stars { font-size: 24px; letter-spacing: 3px; color: rgba(255,255,255,0.25); }
+  #stars .lit { color: #ffd34d; }
+  #sound { font-size: 11px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+  #objective { left: 50%; transform: translateX(-50%); bottom: 56px; font-size: 16px; font-weight: 700; background: rgba(0,0,0,0.55); padding: 7px 16px; border-radius: 20px; border: 1px solid rgba(255,211,77,0.6); white-space: nowrap; }
+  #speed { left: 16px; bottom: 16px; font-size: 26px; font-weight: 800; }
+  #feed { left: 50%; transform: translateX(-50%); top: 14px; text-align: center; font-size: 15px; font-weight: 600; }
+  #feed div { background: rgba(0,0,0,0.55); display: inline-block; padding: 5px 14px; border-radius: 14px; margin-top: 4px; }
+  .overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(8,10,16,0.72); color: #fff; z-index: 10; text-align: center; }
+  .overlay h1 { font-size: 64px; font-weight: 900; letter-spacing: 4px; color: #ffd34d; text-shadow: 0 4px 0 #b3541e, 0 8px 24px rgba(0,0,0,0.8); }
+  .overlay h2 { font-size: 18px; font-weight: 400; color: #ffb37a; margin-top: 4px; letter-spacing: 2px; }
+  .overlay p { margin-top: 18px; font-size: 15px; line-height: 1.7; color: #e8e8e8; }
+  .overlay .keys { font-size: 13px; color: #b9c0cc; margin-top: 14px; line-height: 1.9; }
+  .overlay button { pointer-events: auto; cursor: pointer; margin-top: 22px; font-size: 18px; font-weight: 700; padding: 12px 34px; border-radius: 6px; border: none; background: #ffd34d; color: #1a1a1a; box-shadow: 0 4px 0 #b3541e; }
+  .overlay button:hover { background: #ffe08a; }
+  .overlay button.ghost { background: transparent; color: #ffd34d; border: 2px solid #ffd34d; box-shadow: none; }
+  #busted h1, #wasted h1 { color: #ff5b5b; text-shadow: 0 4px 0 #7a1010, 0 8px 24px rgba(0,0,0,0.8); }
+  #err { display: none; position: absolute; left: 0; right: 0; bottom: 0; background: #a00; color: #fff; font-size: 12px; padding: 4px 10px; z-index: 20; }
+  #paused { display: none; }
+  #busted, #wasted { display: none; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game" width="1280" height="720"></canvas>
+
+  <div class="hud" id="topleft">
+    <div id="healthbar"><div id="health-fill"></div></div>
+    <div id="health-text">HP 100</div>
+    <div id="money">$0</div>
+  </div>
+  <div class="hud" id="topright">
+    <div id="minimap-wrap"><canvas id="minimap" width="220" height="160"></canvas></div>
+    <div id="clock">09:00</div>
+    <div id="stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+    <div id="sound">🔊 sound (0)</div>
+  </div>
+  <div class="hud" id="feed"></div>
+  <div class="hud" id="objective">◆ Solmar Bay — free roam</div>
+  <div class="hud" id="speed"></div>
+
+  <div class="overlay" id="title">
+    <h1>SOLMAR HEAT</h1>
+    <h2>SOLMAR BAY &middot; AN OPEN-WORLD CRIME GAME</h2>
+    <p>Danny Rook needs a driver. Mara Voss needs a ghost.<br>Steal cars, lose the cops, run the city.</p>
+    <div class="keys">
+      WASD / arrows — move &amp; drive &nbsp;·&nbsp; E — steal / exit car<br>
+      Space — punch / shoot &nbsp;·&nbsp; Shift — run &nbsp;·&nbsp; M — minimap &nbsp;·&nbsp; 0 — sound &nbsp;·&nbsp; Esc — pause
+    </div>
+    <button id="title-start">▶ &nbsp;New game</button>
+    <button id="title-continue" class="ghost" style="display:none">Continue save</button>
+    <p id="title-saveinfo" style="font-size:12px;color:#9aa3af"></p>
+  </div>
+
+  <div class="overlay" id="busted">
+    <h1>BUSTED</h1>
+    <p>The cops hauled you in. You lose 20% of your cash.<br>Press Enter to get back out there.</p>
+    <button id="busted-respawn">Get out</button>
+  </div>
+
+  <div class="overlay" id="wasted">
+    <h1>WASTED</h1>
+    <p>The paramedics scraped you off the asphalt. You lose 20% of your cash.<br>Press Enter to get back out there.</p>
+    <button id="wasted-respawn">Get up</button>
+  </div>
+
+  <div class="overlay" id="paused">
+    <h1 style="font-size:42px">PAUSED</h1>
+    <p>Solmar Bay waits for no one. Except now.</p>
+    <button id="paused-resume">Resume</button>
+  </div>
+
+  <div id="err"></div>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
