@@ -14,7 +14,7 @@ node serve.ts
 
 Then open http://localhost:8080 in a desktop browser. No build step, no network requests — the game is plain static files under `game/`.
 
-Controls: WASD / arrows to move and drive, E to steal or exit a car, Space to punch or shoot, Shift to run, M for the minimap, 0 for sound, Esc to pause.
+Controls: WASD / arrows to move and drive, E to steal or exit a car, Space to punch or shoot, Shift to run, M for the minimap, 0 for sound, Esc to pause. An original Solmar Heat theme loops in the background once the game starts.
 
 ---
 

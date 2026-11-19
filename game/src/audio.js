@@ -1,10 +1,13 @@
-// Solmar Heat — sound, synthesized with WebAudio. No audio files: every
-// effect is an oscillator or a burst of filtered noise, so the game loads
-// nothing over the network and plays the same anywhere.
+// Solmar Heat — sound, synthesized with WebAudio, plus one looping theme
+// track shipped with the game (game/assets/solmar-heat-theme.mp3, an original
+// piece composed for it). Sound effects are oscillators or bursts of filtered
+// noise, so the game loads nothing over the network and plays the same anywhere.
 export class AudioSys {
   constructor() {
     this.ctx = null;
     this.muted = false;
+    this.music = null;
+    this.musicStarted = false;
     this.noiseBuf = null;
     this.engineOsc = null;
     this.engineGain = null;
@@ -122,8 +125,26 @@ export class AudioSys {
     notes.forEach((f, i) => setTimeout(() => this.tone(f, 0.22, 'triangle', 0.14), i * 130));
   }
 
+  startMusic() {
+    if (this.musicStarted) return;
+    try {
+      if (!this.music) {
+        this.music = new Audio(new URL('../assets/solmar-heat-theme.mp3', import.meta.url).href);
+        this.music.loop = true;
+        this.music.volume = 0.4;
+        this.music.muted = this.muted;
+        this.music.style.display = 'none';
+        document.body.appendChild(this.music);
+      }
+      this.musicStarted = true;
+      const play = this.music.play();
+      if (play && typeof play.catch === 'function') play.catch(() => { this.musicStarted = false; });
+    } catch (e) { /* music is best-effort */ }
+  }
+
   toggleMute() {
     this.muted = !this.muted;
+    if (this.music) this.music.muted = this.muted;
     return this.muted;
   }
 }

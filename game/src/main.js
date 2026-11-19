@@ -126,6 +126,7 @@ function applySave(data) {
 
 function startGame(useSave) {
   g.audio.ensure();
+  g.audio.startMusic();
   const data = useSave ? loadGame() : null;
   if (data) {
     applySave(data);
