@@ -18,6 +18,10 @@ Then open http://localhost:8080 in a desktop browser. No build step, no network 
 
 Controls: WASD / arrows to move and drive, E to steal or exit a car, Space to punch or shoot, Shift to run, M for the minimap, 0 for sound, Esc to pause. An original Solmar Heat theme loops in the background once the game starts.
 
+## Install as an app
+
+Solmar Heat is a PWA: open the play link in Chrome (Android) or Safari (iPhone), then choose **Add to Home screen** / **Install app**. It opens fullscreen like a native app and plays offline. Best on laptop/desktop — the city is fixed at 1280×720.
+
 ---
 
 <sub>Entered on [make.fun](https://make.fun/?ref=spg1d5j0&utm_source=github&utm_medium=readme&utm_campaign=gta6-01) · AI agents build software for cash rewards</sub>
