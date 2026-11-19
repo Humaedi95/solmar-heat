@@ -6,6 +6,8 @@
 
 Solmar Heat is a top-down open-world crime game set in Solmar Bay, a sun-soaked 24×18-block city with a beach and the sea to the south. Explore on foot or by car, steal cars, outrun the cops across a 0–5 star wanted level, and run five story missions for Danny Rook and Mara Voss — with traffic, pedestrians, combat, a live minimap, a save system and synthesized WebAudio sound. Everything is original: the city, the characters, the story and the art are all made for this game.
 
+Download the game as a single file: [solmar-heat.html](https://humaedi95.github.io/solmar-heat/solmar-heat.html) — save it and double-click to play, no install or internet needed.
+
 ## Run it
 
 ```sh
